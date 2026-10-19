@@ -1,0 +1,6 @@
+target/
+nbproject/private/
+nbactions.xml
+*.class
+.idea/
+.vscode/

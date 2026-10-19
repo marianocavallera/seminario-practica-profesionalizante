@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KioscSys - Prototipo del sistema de gestión de stock, costos y ventas
+  para Kiosco Don Mateo. Proyecto Maven: NetBeans lo abre directamente
+  (File > Open Project) y descarga solo el conector de MySQL.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ar.kioscodonmateo</groupId>
+    <artifactId>KioscSys</artifactId>
+    <version>1.0-prototipo</version>
+    <packaging>jar</packaging>
+    <name>KioscSys</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <!-- Clase principal: la usa NetBeans al presionar Run (F6) -->
+        <exec.mainClass>kioscsys.KioscSys</exec.mainClass>
+    </properties>
+
+    <dependencies>
+        <!-- Conector JDBC oficial de MySQL (RNF-01) -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.4.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Genera un único .jar ejecutable con el conector incluido (RNF-08) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>kioscsys.KioscSys</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>KioscSys</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
