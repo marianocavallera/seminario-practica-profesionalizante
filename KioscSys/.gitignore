@@ -4,3 +4,6 @@ nbactions.xml
 *.class
 .idea/
 .vscode/
+tickets/
+exportaciones/
+config.properties

@@ -5,10 +5,13 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +58,10 @@ public class ValorizacionPanel extends JPanel implements Recargable {
         JPanel filtros = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         filtros.add(new JLabel("Categoría:"));
         filtros.add(cmbCategoria);
+        JButton btnExportar = Estilo.boton("Exportar a CSV");
+        btnExportar.setToolTipText("Guarda los productos mostrados en un archivo para abrir con Excel");
+        btnExportar.addActionListener(e -> exportar());
+        filtros.add(btnExportar);
         JPanel norte = new JPanel(new BorderLayout(0, 10));
         norte.add(Estilo.titulo("Valorización de inventario"), BorderLayout.NORTH);
         norte.add(filtros, BorderLayout.CENTER);
@@ -123,6 +130,19 @@ public class ValorizacionPanel extends JPanel implements Recargable {
         int alertas = controller.alertas(mostrados).size();
         lblAlertas.setText(alertas == 0 ? "Sin productos bajo el stock mínimo."
                 : alertas + " producto(s) bajo el stock mínimo (en rojo).");
+    }
+
+    private void exportar() {
+        if (mostrados.isEmpty()) {
+            Estilo.aviso(this, "No hay productos para exportar.");
+            return;
+        }
+        try {
+            File archivo = controller.exportarCSV(mostrados);
+            Estilo.info(this, "Se exportaron " + mostrados.size() + " productos a:\n" + archivo.getAbsolutePath());
+        } catch (IOException e) {
+            Estilo.errorArchivo(this, "exportar la valorización", e);
+        }
     }
 
     /** Pinta en rojo las filas de productos bajo el stock mínimo. */

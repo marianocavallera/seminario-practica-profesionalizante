@@ -13,7 +13,10 @@ Desarrollado en **Java 17+ con Swing**, con persistencia en **MySQL 8** mediante
 | Menú principal (barra de menú y botonera según el rol) | — | Todos |
 | Registrar venta (lector de código de barras, F10 confirma, Esc cancela) | CU-03 / CU-02 | Vendedor y dueño |
 | Gestionar productos (alta, modificación, baja lógica, búsqueda y orden) | CU-05 | Dueño |
-| Valorización de inventario y alertas de stock mínimo | CU-09 / CU-11 | Dueño |
+| Valorización de inventario y alertas de stock mínimo, con exportación a CSV | CU-09 / CU-11 | Dueño |
+| Reporte de ventas del día (ventas por hora, hora pico, ranking de productos, exportación a TXT) | CU-10 | Dueño |
+
+Al confirmar cada venta se genera el ticket en `tickets/ticket-NNNNNN.txt`. Las exportaciones se guardan en `exportaciones/`.
 
 ## Estructura
 
@@ -25,17 +28,21 @@ src/main/java/kioscsys/
 ├── vista/             Pantallas Swing
 ├── controlador/       Un controlador por caso de uso
 ├── dao/               Único lugar con sentencias SQL
+├── archivo/           Archivos de texto: ArchivoTexto (abstracta, Template Method),
+│                      TicketVenta, ExportacionValorizacionCSV, ReporteDiarioTXT
 ├── conexion/          ConexionBD (Singleton JDBC)
 ├── excepciones/       StockInsuficienteException, DatosInvalidosException, AutenticacionException
 └── util/              Algoritmos de ordenación y búsqueda, formatos, hash SHA-256
 sql/kioscsys.sql       Script de creación y carga de la base de datos
-config.properties      Datos de conexión a MySQL
+sql/ventas_demo_hoy.sql  (Opcional) ventas de ejemplo con la fecha de hoy, para el reporte
+config.properties.ejemplo  Modelo del archivo de conexión a MySQL
 ```
 
 ## Cómo ejecutarlo
 
 1. Ejecutar `sql/kioscsys.sql` en MySQL (Navicat, Workbench o consola). Crea la base `kioscsys` con datos de ejemplo.
-2. Editar `config.properties` y poner la contraseña del usuario `root` de MySQL.
+   Opcional: ejecutar después `sql/ventas_demo_hoy.sql` para tener ventas de hoy en distintos horarios.
+2. Copiar `config.properties.ejemplo` como `config.properties` y poner la contraseña del usuario `root` de MySQL. Ese archivo no se sube a GitHub.
 3. Abrir la carpeta del proyecto en **Apache NetBeans** (*File → Open Project*). Al ser un proyecto Maven, NetBeans descarga solo el conector de MySQL.
 4. Ejecutar con **Run (F6)**.
 

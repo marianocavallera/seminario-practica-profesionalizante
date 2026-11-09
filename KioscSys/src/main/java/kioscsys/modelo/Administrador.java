@@ -3,7 +3,7 @@ package kioscsys.modelo;
 /**
  * Dueño del kiosco. Por la generalización del diagrama de casos de uso,
  * puede hacer todo lo que hace el Vendedor y además gestionar productos y
- * consultar la valorización del inventario.
+ * consultar la valorización del inventario y los reportes de ventas.
  */
 public class Administrador extends Usuario {
 

@@ -1,0 +1,5 @@
+# Copiá este archivo como config.properties y completá la contraseña de MySQL.
+# config.properties no se sube a GitHub (está en .gitignore).
+db.url=jdbc:mysql://localhost:3306/kioscsys
+db.usuario=root
+db.password=

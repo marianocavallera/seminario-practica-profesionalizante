@@ -7,7 +7,8 @@ package kioscsys.modelo;
 public enum Modulo {
     VENTAS("Registrar venta", "CU-03"),
     PRODUCTOS("Gestionar productos", "CU-05"),
-    VALORIZACION("Valorización y alertas de stock", "CU-09 / CU-11");
+    VALORIZACION("Valorización y alertas de stock", "CU-09 / CU-11"),
+    REPORTES("Reporte de ventas del día", "CU-10");
 
     private final String titulo;
     private final String casoDeUso;

@@ -1,9 +1,13 @@
 package kioscsys.controlador;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import kioscsys.archivo.ArchivoTexto;
+import kioscsys.archivo.TicketVenta;
 import kioscsys.dao.ProductoDAO;
 import kioscsys.dao.VentaDAO;
 import kioscsys.excepciones.DatosInvalidosException;
@@ -116,6 +120,23 @@ public class VentaController {
             }
         }
         return alertas;
+    }
+
+    /**
+     * Emite el ticket de la venta recién confirmada en un archivo de texto.
+     * Se llama después de confirmarVenta: si falla la escritura del archivo,
+     * la venta ya quedó grabada en MySQL y no se deshace; solo se avisa.
+     */
+    public File emitirTicket() throws IOException {
+        if (ventaActual.getIdVenta() == 0) {
+            throw new IllegalStateException("La venta todavía no se registró en la base.");
+        }
+        return new TicketVenta(ventaActual).generar();
+    }
+
+    /** Lee un ticket ya emitido para mostrarlo en pantalla. */
+    public String leerTicket(File ticket) throws IOException {
+        return ArchivoTexto.leer(ticket);
     }
 
     public void cancelarVenta() {

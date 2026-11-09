@@ -3,7 +3,8 @@ package kioscsys.vista;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
@@ -164,7 +165,7 @@ public class VentaPanel extends JPanel implements Recargable {
                        .append(", mínimo ").append(p.getStockMinimo()).append(")");
                 }
             }
-            Estilo.info(this, msg.toString());
+            mostrarResultado(msg);
             controller.iniciarVenta();
             actualizarTabla(BigDecimal.ZERO);
         } catch (DatosInvalidosException | StockInsuficienteException e) {
@@ -173,6 +174,34 @@ public class VentaPanel extends JPanel implements Recargable {
             Estilo.errorBD(this, e);
         } finally {
             txtCodigo.requestFocus();
+        }
+    }
+
+    /**
+     * Emite el ticket en archivo y muestra el resultado. Un error de archivo
+     * no anula la venta: ya quedó registrada en la base.
+     */
+    private void mostrarResultado(StringBuilder msg) {
+        File ticket = null;
+        try {
+            ticket = controller.emitirTicket();
+            msg.append("\n\nTicket guardado en: ").append(ticket.getPath());
+        } catch (IOException e) {
+            msg.append("\n\nLa venta se registró, pero no se pudo guardar el ticket:\n").append(e.getMessage());
+        }
+        if (ticket == null) {
+            Estilo.aviso(this, msg.toString());
+            return;
+        }
+        Object[] opciones = {"Aceptar", "Ver ticket"};
+        int eleccion = JOptionPane.showOptionDialog(this, msg.toString(), "KioscSys",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+        if (eleccion == 1) {
+            try {
+                Estilo.mostrarTexto(this, "Ticket " + ticket.getName(), controller.leerTicket(ticket));
+            } catch (IOException e) {
+                Estilo.errorArchivo(this, "leer el ticket", e);
+            }
         }
     }
 

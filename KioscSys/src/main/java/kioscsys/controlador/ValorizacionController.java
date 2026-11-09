@@ -1,10 +1,14 @@
 package kioscsys.controlador;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import kioscsys.archivo.ExportacionValorizacionCSV;
 import kioscsys.dao.ProductoDAO;
 import kioscsys.modelo.Categoria;
 import kioscsys.modelo.Producto;
@@ -25,10 +29,16 @@ public class ValorizacionController {
      * costo de mayor a menor: arriba queda lo que más capital inmoviliza.
      */
     public List<Producto> listar(Categoria categoria) throws SQLException {
-        List<Producto> seleccion = new ArrayList<>();
-        for (Producto p : productoDAO.listarActivos()) {
-            if (categoria == null || p.getCategoria().equals(categoria)) {
-                seleccion.add(p);
+        List<Producto> seleccion = productoDAO.listarActivos();   // ArrayList devuelto por el DAO
+        if (categoria != null) {
+            // Se recorre con un Iterator porque se eliminan elementos durante el
+            // recorrido: hacerlo con un for-each lanzaría ConcurrentModificationException.
+            Iterator<Producto> it = seleccion.iterator();
+            while (it.hasNext()) {
+                Producto p = it.next();
+                if (!p.getCategoria().equals(categoria)) {
+                    it.remove();
+                }
             }
         }
         Comparator<Producto> porValor = Comparator.comparing(Producto::calcularValorCosto).reversed();
@@ -50,6 +60,11 @@ public class ValorizacionController {
             venta = venta.add(v.calcularValorVenta());
         }
         return new BigDecimal[]{costo, venta, venta.subtract(costo)};
+    }
+
+    /** Exporta a CSV los productos que se están mostrando. */
+    public File exportarCSV(List<Producto> productos) throws IOException {
+        return new ExportacionValorizacionCSV(productos).generar();
     }
 
     /** Productos cuyo stock es inferior al mínimo (RF-10). */

@@ -6,9 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import kioscsys.conexion.ConexionBD;
 import kioscsys.excepciones.StockInsuficienteException;
 import kioscsys.modelo.DetalleVenta;
+import kioscsys.modelo.LineaVendida;
 import kioscsys.modelo.Venta;
 
 /** Acceso a las tablas venta y detalle_venta. */
@@ -65,6 +69,42 @@ public class VentaDAO {
         } finally {
             con.setAutoCommit(autoCommitOriginal);
         }
+    }
+
+    /**
+     * Consulta para el reporte de ventas del día (CU-10): todas las líneas
+     * vendidas entre las 00:00 de ese día y las 00:00 del siguiente.
+     * Se filtra por rango de fechas (y no con DATE(fecha) = ?) para que
+     * MySQL pueda usar un índice sobre la columna fecha.
+     *
+     * Cada fila del ResultSet se convierte en un objeto LineaVendida y se
+     * agrega a un ArrayList, porque no se sabe cuántas filas va a devolver.
+     */
+    public List<LineaVendida> listarLineasDelDia(LocalDate dia) throws SQLException {
+        String sql = "SELECT v.id_venta, v.fecha, p.nombre, d.cantidad, d.precio_unitario, d.costo_unitario "
+                   + "FROM venta v "
+                   + "JOIN detalle_venta d ON d.id_venta = v.id_venta "
+                   + "JOIN producto p ON p.id_producto = d.id_producto "
+                   + "WHERE v.fecha >= ? AND v.fecha < ? "
+                   + "ORDER BY v.fecha, v.id_venta";
+        List<LineaVendida> lineas = new ArrayList<>();
+        Connection con = ConexionBD.getInstancia().getConexion();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setTimestamp(1, Timestamp.valueOf(dia.atStartOfDay()));
+            ps.setTimestamp(2, Timestamp.valueOf(dia.plusDays(1).atStartOfDay()));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lineas.add(new LineaVendida(
+                            rs.getInt("id_venta"),
+                            rs.getTimestamp("fecha").toLocalDateTime(),
+                            rs.getString("nombre"),
+                            rs.getInt("cantidad"),
+                            rs.getBigDecimal("precio_unitario"),
+                            rs.getBigDecimal("costo_unitario")));
+                }
+            }
+        }
+        return lineas;
     }
 
     private int leerStock(Connection con, int idProducto) throws SQLException {

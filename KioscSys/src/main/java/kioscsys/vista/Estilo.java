@@ -7,7 +7,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 /** Colores, fuentes y mensajes comunes a todas las pantallas. */
@@ -61,6 +63,25 @@ public final class Estilo {
 
     public static void info(Component padre, String mensaje) {
         JOptionPane.showMessageDialog(padre, mensaje, "KioscSys", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /** Muestra un texto de ancho fijo (por ejemplo, un ticket) en un cuadro de diálogo. */
+    public static void mostrarTexto(Component padre, String titulo, String texto) {
+        JTextArea area = new JTextArea(texto);
+        area.setEditable(false);
+        area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        area.setCaretPosition(0);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setPreferredSize(new java.awt.Dimension(420, 420));
+        JOptionPane.showMessageDialog(padre, scroll, titulo, JOptionPane.PLAIN_MESSAGE);
+    }
+
+    /** Mensaje para errores al leer o escribir archivos. */
+    public static void errorArchivo(Component padre, String accion, Exception e) {
+        System.err.println("Error de archivo: " + e.getMessage());
+        error(padre, "No se pudo " + accion + ".\n"
+                + "Verificá que la carpeta exista, tenga permisos y que el archivo no esté abierto en otro programa."
+                + "\n\nDetalle: " + e.getMessage());
     }
 
     /** Mensaje para errores de base de datos: no se muestra el detalle técnico al vendedor. */

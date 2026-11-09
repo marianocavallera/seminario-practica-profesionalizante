@@ -147,6 +147,9 @@ public class MenuPrincipalView extends JFrame {
                 case VALORIZACION:
                     panel = new ValorizacionPanel();
                     break;
+                case REPORTES:
+                    panel = new ReportePanel();
+                    break;
                 default:
                     return;
             }
