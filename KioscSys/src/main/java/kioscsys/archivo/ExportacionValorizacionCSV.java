@@ -48,7 +48,9 @@ public class ExportacionValorizacionCSV extends ArchivoTexto {
         for (Producto p : productos) {
             // Un arreglo por fila, del mismo largo que COLUMNAS
             String[] fila = new String[COLUMNAS.length];
-            fila[0] = p.getCodigoBarras();
+            // El código se escribe como ="7790...": así Excel lo toma como texto y no lo
+            // convierte en número (lo mostraría como 7,79E+12 y perdería los ceros iniciales).
+            fila[0] = "=\"" + p.getCodigoBarras() + "\"";
             fila[1] = p.getNombre();
             fila[2] = p.getCategoria().getNombre();
             fila[3] = String.valueOf(p.getStockActual());
@@ -71,7 +73,8 @@ public class ExportacionValorizacionCSV extends ArchivoTexto {
                 sb.append(SEPARADOR);
             }
             String v = valores[i];
-            if (v.indexOf(SEPARADOR) >= 0 || v.indexOf('"') >= 0) {
+            boolean esTextoForzado = v.startsWith("=\"");
+            if (!esTextoForzado && (v.indexOf(SEPARADOR) >= 0 || v.indexOf('"') >= 0)) {
                 v = '"' + v.replace("\"", "\"\"") + '"';
             }
             sb.append(v);
